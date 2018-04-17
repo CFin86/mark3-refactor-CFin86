@@ -8,35 +8,34 @@ namespace RefactorKata
     {
         static void Main(string[] args)
         {
-            SqlConnection conn = new SqlConnection("Server = .; Database = myDataBase; User Id = myUsername; Password = myPassword;");
-
-            SqlCommand cmd = conn.CreateCommand();
-            cmd.CommandText = "select * from Products";
-            /*
-             * cmd.CommandText = "Select * from Invoices";
-             */
-            SqlDataReader reader = cmd.ExecuteReader();
             List<Product> products = new List<Product>();
 
-            //TODO: Replace with Dapper
-            while (reader.Read())
+            using (var conn = new SqlConnection("Server = .; " +
+                                                "Database = myDataBase; " +
+                                                "User Id = myUsername; " +
+                                                "Password = myPassword;"))
             {
-                var prod = new Product { name = "Name" };
-                products.Add(prod);
+                SqlDataReader reader;
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "select * from Products";
+                    reader = cmd.ExecuteReader();
+                }
+
+                while (reader.Read())
+                {
+                    products.Add(new Product { Name = reader["Name"].ToString() });
+                }
+
+                conn.Dispose();
             }
 
-            conn.Dispose();
             Console.WriteLine("Products Loaded!");
-            for (int i = 0; i < products.Count; i++)
+
+            foreach (var product in products)
             {
-                Console.WriteLine(products[i].name);
+                Console.WriteLine(product.Name);
             }
         }
-    }
-
-    public class Product
-    {
-        public string name;
-        public string Name { get { return name; } set { name = value; } }
     }
 }
