@@ -15,19 +15,16 @@ namespace RefactorKata
                                                 "User Id = myUsername; " +
                                                 "Password = myPassword;"))
             {
-                SqlDataReader reader;
-                using (var cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = "select * from Products";
-                    reader = cmd.ExecuteReader();
-                }
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = "select * from Products";
+
+                var reader = cmd.ExecuteReader();
+
 
                 while (reader.Read())
                 {
                     products.Add(new Product { Name = reader["Name"].ToString() });
                 }
-
-                conn.Dispose();
             }
 
             Console.WriteLine("Products Loaded!");
